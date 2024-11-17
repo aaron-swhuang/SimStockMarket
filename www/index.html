@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        form label {
+            margin-right: 15px;
+        }
+        input, select, button {
+            padding: 8px;
+            margin-right: 10px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trading Data Request</h1>
+    <form id="query-form">
+        <label>
+            Code: <input type="text" id="code" name="code" required>
+        </label>
+        <label>
+            Start Date: <input type="date" id="startDate" name="startDate" required>
+        </label>
+        <label>
+            End Date: <input type="date" id="endDate" name="endDate" required>
+        </label>
+        <label>
+            Interval: 
+            <select id="interval" name="interval" required>
+                <option value="1m">1 Minute</option>
+                <option value="5m">5 Minutes</option>
+                <option value="1d">1 Day</option>
+            </select>
+        </label>
+        <button type="submit">Fetch Data</button>
+    </form>
+
+    <div id="result-container">
+        <div id="error" class="error"></div>
+
+        <button id="toggle-view">Show Raw JSON</button>
+
+        <div id="table-view" style="display: block;">
+            <table id="trading-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Open</th>
+                        <th>High</th>
+                        <th>Low</th>
+                        <th>Close</th>
+                        <th>Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be dynamically populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="json-view" style="display: none;">
+            <h3>Raw JSON Data</h3>
+            <pre id="json-result"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("query-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            const errorDiv = document.getElementById("error");
+            const tableBody = document.querySelector("#trading-table tbody");
+            const jsonView = document.getElementById("json-view");
+            const tableView = document.getElementById("table-view");
+            const jsonResult = document.getElementById("json-result");
+
+            // Clear error message and table
+            errorDiv.textContent = '';
+            tableBody.innerHTML = '';
+            jsonResult.textContent = '';
+
+            try {
+                const response = await fetch('/get-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server Error: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // if no data
+                if (!result || result.length === 0) {
+                    errorDiv.textContent = 'No data available for the given query.';
+                    return;
+                }
+
+                // Show data in table
+                result.forEach(td => {
+                    const tableRow = document.createElement("tr");
+
+                    tableRow.innerHTML = `
+                        <td>${td.code || '-'}</td>
+                        <td>${td.date || '-'}</td>
+                        <td>${td.time || '-'}</td>
+                        <td>${td.open !== undefined ? td.open : '-'}</td>
+                        <td>${td.high !== undefined ? td.high : '-'}</td>
+                        <td>${td.low !== undefined ? td.low : '-'}</td>
+                        <td>${td.close !== undefined ? td.close : '-'}</td>
+                        <td>${td.volume !== undefined ? td.volume : '-'}</td>
+                    `;
+
+                    tableBody.appendChild(tableRow);
+                });
+
+                // Show raw JSON data
+                jsonResult.textContent = JSON.stringify(result, null, 2);
+
+            } catch (error) {
+                errorDiv.textContent = `Error: ${error.message}`;
+            }
+        });
+
+        document.getElementById("toggle-view").addEventListener("click", () => {
+            const tableView = document.getElementById("table-view");
+            const jsonView = document.getElementById("json-view");
+            const toggleButton = document.getElementById("toggle-view");
+
+            // Toggle between table view and JSON view
+            if (tableView.style.display === "none") {
+                tableView.style.display = "block";
+                jsonView.style.display = "none";
+                toggleButton.textContent = "Show Raw JSON";
+            } else {
+                tableView.style.display = "none";
+                jsonView.style.display = "block";
+                toggleButton.textContent = "Show Table View";
+            }
+        });
+    </script>
+</body>
+</html>
