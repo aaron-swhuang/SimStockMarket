@@ -2,6 +2,7 @@ package web
 
 import (
 	"SimStockMarket/client"
+	"SimStockMarket/constants"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -34,9 +35,11 @@ func RunWebServer() {
 		}
 
 		// Fetch data through client
-		tradingData, err := client.FetchTradingData("localhost:8080", requestData.Code, requestData.StartDate, requestData.EndDate, requestData.Interval)
+		tradingData, err := client.FetchTradingData(requestData.Code, requestData.StartDate,
+			requestData.EndDate, requestData.Interval)
 		if err != nil {
-			http.Error(w, "Error fetching trading data: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Error fetching trading data: "+err.Error(),
+				http.StatusInternalServerError)
 			return
 		}
 
@@ -46,5 +49,5 @@ func RunWebServer() {
 	})
 
 	log.Println("Web server started on port 8082")
-	log.Fatal(http.ListenAndServe(":8082", nil))
+	log.Fatal(http.ListenAndServe(constants.WEB_SERVER, nil))
 }

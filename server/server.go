@@ -105,6 +105,7 @@ func ParseInterval(intv string) (time.Duration, error) {
 		return 0, errors.New("unknown interval unit")
 	}
 }
+
 func HandleTradingData(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)

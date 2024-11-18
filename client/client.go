@@ -1,6 +1,7 @@
 package client
 
 import (
+	"SimStockMarket/constants"
 	"SimStockMarket/data"
 	"bytes"
 	"encoding/json"
@@ -17,7 +18,7 @@ type RequestData struct {
 	Interval  string `json:"interval"`
 }
 
-func StartClient(serverAddr, code, startDate, endDate, interval string) {
+func StartClient(code, startDate, endDate, interval string) {
 	fmt.Printf("Client code: %s, startDate: %s, endDate: %s, interval: %s\n", code, startDate, endDate, interval)
 
 	// Construct request data
@@ -35,7 +36,7 @@ func StartClient(serverAddr, code, startDate, endDate, interval string) {
 	}
 
 	// Send HTTP POST request
-	url := fmt.Sprintf("http://%s/trading-data", serverAddr)
+	url := fmt.Sprintf("http://%s/trading-data", constants.TRADING_SERVER)
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		log.Fatalf("Error sending POST request: %v", err)
@@ -69,7 +70,7 @@ func StartClient(serverAddr, code, startDate, endDate, interval string) {
 	}
 }
 
-func FetchTradingData(serverAddr, code, startDate, endDate, interval string) ([]data.TradingData, error) {
+func FetchTradingData(code, startDate, endDate, interval string) ([]data.TradingData, error) {
 	// 構造請求數據
 	requestData := RequestData{
 		Code:      code,
@@ -85,7 +86,7 @@ func FetchTradingData(serverAddr, code, startDate, endDate, interval string) ([]
 	}
 
 	// Send HTTP POST request
-	url := fmt.Sprintf("http://%s/trading-data", serverAddr)
+	url := fmt.Sprintf("http://%s/trading-data", constants.TRADING_SERVER)
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("error sending POST request: %w", err)

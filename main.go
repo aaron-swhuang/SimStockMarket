@@ -2,6 +2,7 @@ package main
 
 import (
 	"SimStockMarket/client"
+	"SimStockMarket/constants"
 	"SimStockMarket/server"
 	"SimStockMarket/web"
 
@@ -10,19 +11,16 @@ import (
 	"os"
 )
 
-const VERSION = "1.0"
-
 func GetVersion() {
-	fmt.Printf("Generator version - %s\n", VERSION)
+	fmt.Printf("Generator version - %s\n", constants.VERSION)
 }
 
 var (
-	version    = flag.Bool("version", false, "Print generator version")
-	serverAddr = flag.String("addr", "localhost:8080", "WebSocket server address")
-	interval   = flag.String("interval", "1m", "Interval to request trading data")
-	code       = flag.String("code", "2330", "stock code to request data for")
-	startDate  = flag.String("startDate", "", "start date for data (YYYY-MM-DD)")
-	endDate    = flag.String("endDate", "", "end date for data (YYYY-MM-DD)")
+	version   = flag.Bool("version", false, "Print generator version")
+	interval  = flag.String("interval", "1m", "Interval to request trading data")
+	code      = flag.String("code", "2330", "stock code to request data for")
+	startDate = flag.String("startDate", "", "start date for data (YYYY-MM-DD)")
+	endDate   = flag.String("endDate", "", "end date for data (YYYY-MM-DD)")
 )
 
 func main() {
@@ -45,7 +43,7 @@ func main() {
 		server.StartServer()
 	case "client":
 		fmt.Printf("%s, %s, %s, %s\n", *code, *startDate, *endDate, *interval)
-		client.StartClient(*serverAddr, *code, *startDate, *endDate, *interval)
+		client.StartClient(*code, *startDate, *endDate, *interval)
 	case "web":
 		web.RunWebServer()
 	default:
