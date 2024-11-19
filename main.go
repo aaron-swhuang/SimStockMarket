@@ -5,6 +5,7 @@ import (
 	"SimStockMarket/constants"
 	"SimStockMarket/server"
 	"SimStockMarket/web"
+	"log"
 
 	"flag"
 	"fmt"
@@ -42,7 +43,7 @@ func main() {
 	case "server":
 		server.StartServer()
 	case "client":
-		fmt.Printf("%s, %s, %s, %s\n", *code, *startDate, *endDate, *interval)
+		log.Printf("%s, %s, %s, %s\n", *code, *startDate, *endDate, *interval)
 		client.StartClient(*code, *startDate, *endDate, *interval)
 	case "web":
 		web.RunWebServer()

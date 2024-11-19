@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -65,8 +64,20 @@ func GenerateDataSeries(
 	interval time.Duration) []data.TradingData {
 
 	var dataSeries []data.TradingData
-	startTime := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 9, 0, 0, 0, startDate.Location())
-	endTime := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 13, 30, 0, 0, startDate.Location())
+	var startTime time.Time
+	var endTime time.Time
+
+	if isDayInterval {
+		startTime = time.Date(startDate.Year(), startDate.Month(), startDate.Day(),
+			13, 30, 0, 0, startDate.Location())
+		endTime = time.Date(endDate.Year(), endDate.Month(), endDate.Day(),
+			13, 30, 0, 0, startDate.Location())
+	} else {
+		startTime = time.Date(startDate.Year(), startDate.Month(), startDate.Day(),
+			9, 0, 0, 0, startDate.Location())
+		endTime = time.Date(endDate.Year(), endDate.Month(), endDate.Day(),
+			13, 30, 0, 0, startDate.Location())
+	}
 
 	for !startTime.After(endTime) {
 		if IsValidTradingTime(startTime) {
@@ -78,6 +89,8 @@ func GenerateDataSeries(
 
 	return dataSeries
 }
+
+var isDayInterval = false
 
 func ParseInterval(intv string) (time.Duration, error) {
 	if len(intv) < 2 {
@@ -92,6 +105,7 @@ func ParseInterval(intv string) (time.Duration, error) {
 		return 0, errors.New("interval value is not a valid number")
 	}
 
+	isDayInterval = false
 	switch unit {
 	case "s":
 		return time.Duration(value) * time.Second, nil
@@ -100,6 +114,7 @@ func ParseInterval(intv string) (time.Duration, error) {
 	case "h":
 		return time.Duration(value) * time.Hour, nil
 	case "d":
+		isDayInterval = true
 		return time.Duration(value) * 24 * time.Hour, nil
 	default:
 		return 0, errors.New("unknown interval unit")
@@ -155,6 +170,6 @@ func HandleTradingData(w http.ResponseWriter, r *http.Request) {
 
 func StartServer() {
 	http.HandleFunc("/trading-data", HandleTradingData)
-	fmt.Println("HTTP server started on http://localhost:8080/trading-data")
+	log.Println("HTTP server started on http://localhost:8080/trading-data")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
