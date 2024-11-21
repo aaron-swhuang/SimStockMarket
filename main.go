@@ -22,6 +22,7 @@ var (
 	code      = flag.String("code", "2330", "stock code to request data for")
 	startDate = flag.String("startDate", "", "start date for data (YYYY-MM-DD)")
 	endDate   = flag.String("endDate", "", "end date for data (YYYY-MM-DD)")
+	saveFile  = flag.Bool("saveFile", false, "Generate output jason file")
 )
 
 func main() {
@@ -44,7 +45,7 @@ func main() {
 		server.StartServer()
 	case "client":
 		log.Printf("%s, %s, %s, %s\n", *code, *startDate, *endDate, *interval)
-		client.StartClient(*code, *startDate, *endDate, *interval)
+		client.StartClient(*code, *startDate, *endDate, *interval, *saveFile)
 	case "web":
 		web.RunWebServer()
 	default:

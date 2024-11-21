@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 type RequestData struct {
@@ -18,8 +19,9 @@ type RequestData struct {
 	Interval  string `json:"interval"`
 }
 
-func StartClient(code, startDate, endDate, interval string) {
-	fmt.Printf("Client code: %s, startDate: %s, endDate: %s, interval: %s\n", code, startDate, endDate, interval)
+func StartClient(code, startDate, endDate, interval string, outputFile bool) {
+	log.Printf("Client code: %s, startDate: %s, endDate: %s, interval: %s, outputFile: %t\n",
+		code, startDate, endDate, interval, outputFile)
 
 	// Construct request data
 	requestData := RequestData{
@@ -62,6 +64,24 @@ func StartClient(code, startDate, endDate, interval string) {
 		log.Fatalf("Error unmarshalling response: %v", err)
 	}
 
+	// Output json file
+	if outputFile {
+		fileName := fmt.Sprintf("%s_%s_%s_%s_tradingData.json", code, startDate, endDate, interval)
+		filePath := "./" + fileName
+		file, err := os.Create(filePath)
+		if err != nil {
+			log.Println("error creating JSON file: %w", err)
+		}
+		defer file.Close()
+
+		encoder := json.NewEncoder(file)
+		encoder.SetIndent("", "  ") // Pretty print
+		if err := encoder.Encode(tradingData); err != nil {
+			log.Println("error writing to JSON file: %w", err)
+		}
+		log.Printf("Trading data saved to %s\n", filePath)
+	}
+
 	// Print trading data
 	log.Println("Received trading data:")
 	for _, data := range tradingData {
@@ -71,7 +91,7 @@ func StartClient(code, startDate, endDate, interval string) {
 }
 
 func FetchTradingData(code, startDate, endDate, interval string) ([]data.TradingData, error) {
-	// 構造請求數據
+	// Request data
 	requestData := RequestData{
 		Code:      code,
 		StartDate: startDate,

@@ -64,6 +64,19 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+        #toggle-view, #download-json {
+            padding: 8px 12px;
+            font-size: 14px;
+            margin: 0 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #toggle-view:hover, #download-json:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -92,7 +105,10 @@
     <div id="result-container">
         <div id="error" class="error"></div>
 
-        <button id="toggle-view">Show Raw JSON</button>
+        <div style="display: flex; align-items: center; margin-top: 10px;">
+            <button id="toggle-view">Show Raw JSON</button>
+            <button id="download-json" style="margin-left: 10px; display: none;">Download JSON</button>
+        </div>
 
         <div id="table-view" style="display: block;">
             <table id="trading-table">
@@ -130,8 +146,6 @@
 
             const errorDiv = document.getElementById("error");
             const tableBody = document.querySelector("#trading-table tbody");
-            const jsonView = document.getElementById("json-view");
-            const tableView = document.getElementById("table-view");
             const jsonResult = document.getElementById("json-result");
 
             // Clear error message and table
@@ -179,6 +193,18 @@
                 // Show raw JSON data
                 jsonResult.textContent = JSON.stringify(result, null, 2);
 
+                // Setup download button
+                const downloadButton = document.getElementById("download-json");
+                downloadButton.onclick = () => {
+                    const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = "trading_data.json";
+                    link.click();
+                    URL.revokeObjectURL(url);
+                };
+
             } catch (error) {
                 errorDiv.textContent = `Error: ${error.message}`;
             }
@@ -188,16 +214,19 @@
             const tableView = document.getElementById("table-view");
             const jsonView = document.getElementById("json-view");
             const toggleButton = document.getElementById("toggle-view");
+            const downloadButton = document.getElementById("download-json");
 
             // Toggle between table view and JSON view
             if (tableView.style.display === "none") {
                 tableView.style.display = "block";
                 jsonView.style.display = "none";
                 toggleButton.textContent = "Show Raw JSON";
+                downloadButton.style.display = "none";
             } else {
                 tableView.style.display = "none";
                 jsonView.style.display = "block";
                 toggleButton.textContent = "Show Table View";
+                downloadButton.style.display = "inline-block";
             }
         });
     </script>
