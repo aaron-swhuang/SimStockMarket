@@ -66,3 +66,16 @@ func RSV(data []data.TradingData, n int) []float32 {
 	}
 	return rsvResult
 }
+
+func BollingerBands(data []data.TradingData, n int, k float32) ([]float32, []float32, []float32) {
+	// k is the standard deviation multiplier
+	sma := MA(data, n)
+	stdDev := utils.StandardDeviation(data, sma, n)
+
+	var upperBand, lowerBand []float32
+	for i := 0; i < len(sma); i++ {
+		upperBand = append(upperBand, sma[i]+k*stdDev[i])
+		lowerBand = append(lowerBand, sma[i]-k*stdDev[i])
+	}
+	return upperBand, sma, lowerBand
+}

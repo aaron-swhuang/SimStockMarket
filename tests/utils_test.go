@@ -115,3 +115,12 @@ func TestFindMinMax(t *testing.T) {
 		t.Errorf("unexpected")
 	}
 }
+
+/*
+func TestStandardDeviation(t *testing.T) {
+	var expResult = [...]float32 {236.67242, 336.24088, 336.28226, 336.32596, 336.3748, 336.42215, 336.45758}
+	stdDev := utils.StandardDeviation(tradingData, indicator.MA(tradingData, 3), 3)
+	if stdDev[:] != expResult[:] { t.Errorf("unexpected result array")}
+	log.Println(stdDev)
+
+}*/
