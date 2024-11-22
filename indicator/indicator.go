@@ -3,7 +3,6 @@ package indicator
 import (
 	"SimStockMarket/data"
 	"SimStockMarket/utils"
-	"log"
 )
 
 // Moving Average
@@ -44,7 +43,6 @@ func KDLine(data []data.TradingData, n int, alpha, beta float32) ([]float32, []f
 // RSV, Raw Stochastic Value
 // (Current.Close - Lowest(n)) / (Highest(n) - Lowest(n)) * 100
 func RSV(data []data.TradingData, n int) []float32 {
-	log.Println("len: ", len(data), ", n: ", n)
 	// Sample is not enough
 	if len(data) < n {
 		return nil
@@ -55,8 +53,6 @@ func RSV(data []data.TradingData, n int) []float32 {
 	// There's no RSV if samples are not enough
 	for i := n - 1; i < len(data); i++ {
 		lowest, highest := utils.FindMinMax(data, i-n+1, i)
-		log.Println("min:", lowest, ", max:", highest)
-
 		if lowest != highest {
 			rsvResult[i] = (data[i].Close - lowest) / (highest - lowest) * 100
 		} else {

@@ -134,3 +134,23 @@ func FetchTradingData(code, startDate, endDate, interval string) ([]data.Trading
 	log.Println("k:", kline, "d:", dline)
 	return tradingData, nil
 }
+
+func Generate(input string) {
+	// Read json file
+	file, err := os.ReadFile(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var data []data.TradingData
+
+	// Resolve json file
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, td := range data {
+		log.Printf("Code: %s, Date: %s, Time: %s, Open: %.2f, High: %.2f, Low: %.2f, Close: %.2f, Volume: %d\n",
+			td.Code, td.Date, td.Time, td.Open, td.High, td.Low, td.Close, td.Volume)
+	}
+}

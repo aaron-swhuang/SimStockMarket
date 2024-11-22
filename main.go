@@ -48,6 +48,8 @@ func main() {
 		client.StartClient(*code, *startDate, *endDate, *interval, *saveFile)
 	case "web":
 		web.RunWebServer()
+	case "gen":
+		client.Generate("trading_data.json")
 	default:
 		{
 			fmt.Println("Invalid argument.")
