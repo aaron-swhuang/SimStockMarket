@@ -3,6 +3,7 @@ package client
 import (
 	"SimStockMarket/constants"
 	"SimStockMarket/data"
+	"SimStockMarket/indicator"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -129,5 +130,7 @@ func FetchTradingData(code, startDate, endDate, interval string) ([]data.Trading
 		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
 
+	kline, dline := indicator.KDLine(tradingData, 9, 1/3, 2/3)
+	log.Println("k:", kline, "d:", dline)
 	return tradingData, nil
 }
